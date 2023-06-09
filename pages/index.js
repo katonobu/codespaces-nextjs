@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
+import axios from 'axios'
+import {XMLParser} from "fast-xml-parser"
 import Button from '../components/Button'
 import ClickCount from '../components/ClickCount'
 import styles from '../styles/home.module.css'
+import HandleMainProvisionComponent from '../components/HandleMainProvision'
 
 function throwError() {
   console.log(
@@ -26,44 +29,43 @@ function Home() {
     }
   }, [increment])
 
+  const [parsedData, setParsedData] = useState(null);
+  useEffect(() => {
+    // XMLデータを取得する処理
+    const fetchData = async () => {
+      const options = {
+        ignoreAttributes: false,
+      };
+      const xp = new XMLParser(options);
+      
+      // const res = await axios.get("https://elaws.e-gov.go.jp/api/1/lawdata/321CONSTITUTION"); // 憲法
+      // const res = await axios.get("https://elaws.e-gov.go.jp/api/1/lawdata/129AC0000000089"); // 民法
+      // const res = await axios.get("https://elaws.e-gov.go.jp/api/1/lawdata/140AC0000000045"); // 刑法
+      // const res = await axios.get("https://elaws.e-gov.go.jp/api/1/lawdata/337AC0000000069"); // 区分所有者法
+      // const res = await axios.get("https://elaws.e-gov.go.jp/api/1/lawdata/359AC0000000086"); // 電気通信事業法
+      const res = await axios.get("https://elaws.e-gov.go.jp/api/1/lawdata/325AC0000000131"); // 電波法, Subitem1, TableStruct
+      // const res = await axios.get("https://elaws.e-gov.go.jp/api/1/lawdata/325M50080000014"); // 電波法施行規則, List
+      // const res = await axios.get("https://elaws.e-gov.go.jp/api/1/lawdata/325M50080000018"); // 無線設備規則
+  
+      const xmlContent = res.data;
+      setParsedData(xp.parse(xmlContent));
+    };  
+
+    fetchData();
+  }, []);  
+
   return (
     <main className={styles.main}>
-      <h1>Fast Refresh Demo</h1>
-      <p>
-        Fast Refresh is a Next.js feature that gives you instantaneous feedback
-        on edits made to your React components, without ever losing component
-        state.
-      </p>
-      <hr className={styles.hr} />
       <div>
-        <p>
-          Auto incrementing value. The counter won't reset after edits or if
-          there are errors.
-        </p>
-        <p>Current value: {count}</p>
-      </div>
-      <hr className={styles.hr} />
-      <div>
-        <p>Component with state.</p>
-        <ClickCount />
-      </div>
-      <hr className={styles.hr} />
-      <div>
-        <p>
-          The button below will throw 2 errors. You'll see the error overlay to
-          let you know about the errors but it won't break the page or reset
-          your state.
-        </p>
-        <Button
-          onClick={(e) => {
-            setTimeout(() => document.parentNode(), 0)
-            throwError()
-          }}
-        >
-          Throw an Error
-        </Button>
-      </div>
-      <hr className={styles.hr} />
+        {parsedData ? (
+          // パースされたデータを表示する処理
+//          <pre>{JSON.stringify(parsedData.DataRoot.ApplData.LawFullText.Law.LawBody.MainProvision, null, 2)}</pre>          
+          <HandleMainProvisionComponent data={parsedData.DataRoot.ApplData.LawFullText.Law.LawBody.MainProvision}>
+          </HandleMainProvisionComponent>
+        ) : (
+          <p>Loading...</p>
+        )}
+      </div>      
     </main>
   )
 }
