@@ -1,13 +1,29 @@
-# GitHub Codespaces ♥️ Next.js
+# Next.jsをgithub pageにデプロイする
+[GitHub PagesにNext.js をデプロイする](https://qiita.com/manten120/items/87e9e822800403904dc8)
 
-Welcome to your shiny new Codespace running Next.js! We've got everything fired up and running for you to explore Next.js.
+- 静的なHTMLとしてNext.jsアプリを生成するためのコマンドをpackage.jsonに追加
+  - package.jsonのscriptsにexportを追記する。
 
-You've got a blank canvas to work on from a git perspective as well. There's a single initial commit with the what you're seeing right now - where you go from here is up to you!
-
-Everything you do here is contained within this one codespace. There is no repository on GitHub yet. If and when you’re ready you can click "Publish Branch" and we’ll create your repository and push up your project. If you were just exploring then and have no further need for this code then you can simply delete your codespace and it's gone forever.
-
-To run this application:
-
+- ビルドを確認
 ```
-npm run dev
+$ npm run build
+$ npm run export
+:
+Export successful. Files written to /workspaces/codespaces-nextjs/out
 ```
+- ローカルサーバーで動作を確認する
+```
+$ npm install --save-dev serve
+$ npx serve out
+```
+
+- 不要なディレクトリをpushしないために.gitignoreに追記
+→すでに記載済。
+
+- GitHub Actions でデプロイするための準備
+  - `.github/workflows/gh-pages.yml`を作る。
+  - git add/commit/pushする
+
+
+
+
